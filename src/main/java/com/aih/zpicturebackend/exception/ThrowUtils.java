@@ -1,4 +1,4 @@
-package com.yupi.yupicturebackend.exception;
+package com.aih.zpicturebackend.exception;
 
 /**
  * 异常处理工具类
