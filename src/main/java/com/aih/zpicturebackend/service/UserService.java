@@ -2,8 +2,8 @@ package com.aih.zpicturebackend.service;
 
 import com.aih.zpicturebackend.model.dto.user.UserQueryRequest;
 import com.aih.zpicturebackend.model.entity.User;
-import com.aih.zpicturebackend.model.vo.user.LoginUserVO;
-import com.aih.zpicturebackend.model.vo.user.UserVO;
+import com.aih.zpicturebackend.model.vo.LoginUserVO;
+import com.aih.zpicturebackend.model.vo.UserVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -91,5 +91,14 @@ public interface UserService extends IService<User> {
      * @return 加密后的密码
      */
     String getEncryptPassword(String userPassword);
+
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
+    boolean isAdmin(User user);
+
 }
 

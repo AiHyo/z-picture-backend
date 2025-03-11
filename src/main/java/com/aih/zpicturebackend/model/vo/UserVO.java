@@ -1,4 +1,4 @@
-package com.aih.zpicturebackend.model.vo.user;
+package com.aih.zpicturebackend.model.vo;
 
 import lombok.Data;
 

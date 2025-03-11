@@ -1,4 +1,4 @@
-package com.aih.aop;
+package com.aih.zpicturebackend.aop;
 
 import com.aih.zpicturebackend.annotaion.AuthCheck;
 import com.aih.zpicturebackend.exception.BusinessException;

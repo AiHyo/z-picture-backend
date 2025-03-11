@@ -6,8 +6,8 @@ import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.model.dto.user.UserQueryRequest;
 import com.aih.zpicturebackend.model.enums.UserRoleEnum;
-import com.aih.zpicturebackend.model.vo.user.LoginUserVO;
-import com.aih.zpicturebackend.model.vo.user.UserVO;
+import com.aih.zpicturebackend.model.vo.LoginUserVO;
+import com.aih.zpicturebackend.model.vo.UserVO;
 import com.aih.zpicturebackend.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -33,6 +33,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+    }
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
