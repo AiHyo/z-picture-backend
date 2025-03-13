@@ -1,22 +1,17 @@
 package com.aih.zpicturebackend.manage;
 
 import cn.hutool.core.io.FileUtil;
-import com.aih.zpicturebackend.annotaion.AuthCheck;
 import com.aih.zpicturebackend.config.CosClientConfig;
-import com.aih.zpicturebackend.constant.UserConstant;
-import com.aih.zpicturebackend.exception.BusinessException;
-import com.aih.zpicturebackend.exception.ErrorCode;
 import com.qcloud.cos.COSClient;
-import com.qcloud.cos.model.*;
+import com.qcloud.cos.model.COSObject;
+import com.qcloud.cos.model.GetObjectRequest;
+import com.qcloud.cos.model.PutObjectRequest;
+import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.ciModel.persistence.PicOperations;
-import com.qcloud.cos.utils.IOUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,22 +55,25 @@ public class CosManager {
                 file);
         // 对图片进行处理（获取基本信息也被视作为一种图片的处理）
         PicOperations picOperations = new PicOperations();
-        // 1 表示返回原图信息
-        picOperations.setIsPicInfo(1);
-        // 图片处理规则列表
+        picOperations.setIsPicInfo(1);// 1 表示返回原图信息
+        // 创建 处理规则rules
         List<PicOperations.Rule> rules = new ArrayList<>();
-        // 1. 图片压缩（转成 webp 格式）
+        // 添加处理规则1. 图片压缩处理（转成 webp 格式）
         String webpKey = FileUtil.mainName(key) + ".webp";
         PicOperations.Rule compressRule = new PicOperations.Rule();
         compressRule.setFileId(webpKey);
         compressRule.setBucket(cosClientConfig.getBucket());
         compressRule.setRule("imageMogr2/format/webp");
         rules.add(compressRule);
-        // 2. 缩略图处理，仅对 > 20 KB 的图片生成缩略图
+        // 添加处理规则2. 缩略图处理，仅对 > 20 KB 的图片生成缩略图
         if (file.length() > 2 * 1024) {
             PicOperations.Rule thumbnailRule = new PicOperations.Rule();
             // 拼接缩略图的路径
-            String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);
+            String suffix = FileUtil.getSuffix(key);
+            if (suffix == null) { // 没有则默认jpg
+                suffix = "jpg";
+            }
+            String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + suffix;
             thumbnailRule.setFileId(thumbnailKey);
             thumbnailRule.setBucket(cosClientConfig.getBucket());
             // 缩放规则 /thumbnail/<Width>x<Height>>（如果大于原图宽高，则不处理）

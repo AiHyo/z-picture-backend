@@ -3,11 +3,12 @@ package com.aih.zpicturebackend.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.aih.zpicturebackend.config.CosClientConfig;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.exception.ThrowUtils;
+import com.aih.zpicturebackend.manage.CosManager;
 import com.aih.zpicturebackend.manage.upload.FilePictureUpload;
 import com.aih.zpicturebackend.manage.upload.PictureUploadTemplate;
 import com.aih.zpicturebackend.manage.upload.UrlPictureUpload;
@@ -33,6 +34,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,10 +63,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private FilePictureUpload filePictureUpload;
     @Resource
     private UrlPictureUpload urlPictureUpload;
-
-
+    @Resource
+    private CosManager cosManager;
+    @Resource
+    protected CosClientConfig cosClientConfig;
     @Resource
     private UserService userService;
+
+
 
     @Override
     public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
@@ -96,9 +102,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "输入文件类型错误");
         }
         UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
-        // 根据返回的结果uploadPictureResult，构建Picture对象
+        // 根据返回的结果uploadPictureResult => Picture对象
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
+        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         String picName = uploadPictureResult.getPicName();
         if (pictureUploadRequest!=null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
             picName = pictureUploadRequest.getPicName(); // 支持外层传入图片名称
@@ -353,6 +360,31 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         return uploadCount - 1;
     }
+
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断该图片是否被多条记录使用
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery()
+                .eq(Picture::getUrl, pictureUrl)
+                .count();
+        // 有不止一条记录用到了该图片，不清理
+        if (count > 1) {
+            return;
+        }
+        // url 包含了域名，需要转换成key ，再删除
+        String key = pictureUrl.replace(cosClientConfig.getHost(), "");
+        // 删除对象
+        cosManager.deleteObject(key);
+        // 清理缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            String thumbnailKey = thumbnailUrl.replace(cosClientConfig.getHost(), "");
+            cosManager.deleteObject(thumbnailKey);
+        }
+    }
+
 
 
 }
