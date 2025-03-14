@@ -1,9 +1,6 @@
 package com.aih.zpicturebackend.service;
 
-import com.aih.zpicturebackend.model.dto.picture.PictureQueryRequest;
-import com.aih.zpicturebackend.model.dto.picture.PictureReviewRequest;
-import com.aih.zpicturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.aih.zpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.aih.zpicturebackend.model.dto.picture.*;
 import com.aih.zpicturebackend.model.entity.Picture;
 import com.aih.zpicturebackend.model.entity.User;
 import com.aih.zpicturebackend.model.vo.PictureVO;
@@ -74,6 +71,12 @@ public interface PictureService extends IService<Picture> {
             User loginUser
     );
 
+    void deletePicture(long pictureId, User loginUser);
+
     @Async
     void clearPictureFile(Picture oldPicture);
+
+    void checkPictureAuth(User loginUser, Picture picture);
+
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 }
