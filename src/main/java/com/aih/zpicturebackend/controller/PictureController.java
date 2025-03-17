@@ -3,6 +3,8 @@ package com.aih.zpicturebackend.controller;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.annotaion.AuthCheck;
+import com.aih.zpicturebackend.api.imagesearch.ImageSearchApiFacade;
+import com.aih.zpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.aih.zpicturebackend.common.BaseResponse;
 import com.aih.zpicturebackend.common.DeleteRequest;
 import com.aih.zpicturebackend.common.ResultUtils;
@@ -24,8 +26,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
@@ -35,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -272,6 +271,33 @@ public class PictureController {
         return ResultUtils.success(pictureVOPage);
     }
 
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
+        String picColor = searchPictureByColorRequest.getPicColor();
+        Long spaceId = searchPictureByColorRequest.getSpaceId();
+        User loginUser = userService.getLoginUser(request);
+        List<PictureVO> result = pictureService.searchPictureByColor(spaceId, picColor, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 以图搜图
+     */
+    @PostMapping("/search/picture")
+    public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureRequest searchPictureByPictureRequest) {
+        ThrowUtils.throwIf(searchPictureByPictureRequest == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureRequest.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
+        Picture dbPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(dbPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 传入原始路径，而不是处理过的webp格式图片【不被接口支持】
+        String originalUrl = dbPicture.getOriginalUrl();
+        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(originalUrl);
+        return ResultUtils.success(resultList);
+    }
+
+
     /**
      * 编辑图片（给用户使用）
      */
@@ -284,6 +310,15 @@ public class PictureController {
         pictureService.editPicture(pictureEditRequest, loginUser);
         return ResultUtils.success(true);
     }
+
+    @PostMapping("/edit/batch")
+    public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest pictureEditByBatchRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureEditByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        pictureService.editPictureByBatch(pictureEditByBatchRequest, loginUser);
+        return ResultUtils.success(true);
+    }
+
 
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {

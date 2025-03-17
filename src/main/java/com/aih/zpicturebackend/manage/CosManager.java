@@ -1,6 +1,7 @@
 package com.aih.zpicturebackend.manage;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.aih.zpicturebackend.config.CosClientConfig;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.COSObject;
@@ -59,9 +60,9 @@ public class CosManager {
         // 创建 处理规则rules
         List<PicOperations.Rule> rules = new ArrayList<>();
         // 添加处理规则1. 图片压缩处理（转成 webp 格式）
-        String webpKey = FileUtil.mainName(key) + ".webp";
+        String compressedKey = FileUtil.mainName(key) + ".webp";
         PicOperations.Rule compressRule = new PicOperations.Rule();
-        compressRule.setFileId(webpKey);
+        compressRule.setFileId(compressedKey);
         compressRule.setBucket(cosClientConfig.getBucket());
         compressRule.setRule("imageMogr2/format/webp");
         rules.add(compressRule);
@@ -70,7 +71,7 @@ public class CosManager {
             PicOperations.Rule thumbnailRule = new PicOperations.Rule();
             // 拼接缩略图的路径
             String suffix = FileUtil.getSuffix(key);
-            if (suffix == null) { // 没有则默认jpg
+            if (StrUtil.isBlank(suffix)) { // 没有则默认jpg
                 suffix = "jpg";
             }
             String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + suffix;
