@@ -1,8 +1,12 @@
 package com.aih.zpicturebackend.controller;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.annotaion.AuthCheck;
+import com.aih.zpicturebackend.api.aliYunai.AliYunAiApi;
+import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskResponse;
+import com.aih.zpicturebackend.api.aliYunai.model.GetOutPaintingTaskResponse;
 import com.aih.zpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.aih.zpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.aih.zpicturebackend.common.BaseResponse;
@@ -50,6 +54,8 @@ public class PictureController {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private SpaceService spaceService;
+    @Resource
+    private AliYunAiApi aliYunAiApi;
 
     /**
      * 本地缓存
@@ -244,7 +250,7 @@ public class PictureController {
         String cacheKey = "zpicture:listPictureVOByPageWithCache:" + hashKey;
         // ②查找缓存 【多级缓存：先本地再redis】
         // 1. 先查询本地缓存（Caffeine）
-        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey); //本地缓存
+        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey); // 本地缓存
         if (cachedValue != null) {
             Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
             return ResultUtils.success(cachedPage);
@@ -323,8 +329,8 @@ public class PictureController {
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
-        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        List<String> tagList = Arrays.asList("风光", "人文", "城市", "艺术", "游戏", "动物", "植物", "抽象", "明星", "动漫感");
+        List<String> categoryList = Arrays.asList("静物", "动态", "特别", "极简", "复古", "特写", "航拍", "天气", "光影", "夜色", "色彩");
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
@@ -337,6 +343,31 @@ public class PictureController {
         User loginUser = userService.getLoginUser(request);
         pictureService.doPictureReview(pictureReviewRequest, loginUser);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 创建 AI 扩图任务
+     */
+    @PostMapping("/out_painting/create_task")
+    public BaseResponse<CreateOutPaintingTaskResponse> createPictureOutPaintingTask(
+            @RequestBody CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest,
+            HttpServletRequest request) {
+        if (createPictureOutPaintingTaskRequest == null || createPictureOutPaintingTaskRequest.getPictureId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        CreateOutPaintingTaskResponse response = pictureService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, loginUser);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 查询 AI 扩图任务
+     */
+    @GetMapping("/out_painting/get_task")
+    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
+        ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
+        GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
+        return ResultUtils.success(task);
     }
 
 

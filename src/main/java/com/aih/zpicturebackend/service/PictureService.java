@@ -1,5 +1,6 @@
 package com.aih.zpicturebackend.service;
 
+import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskResponse;
 import com.aih.zpicturebackend.model.dto.picture.*;
 import com.aih.zpicturebackend.model.entity.Picture;
 import com.aih.zpicturebackend.model.entity.User;
@@ -86,4 +87,6 @@ public interface PictureService extends IService<Picture> {
     void checkPictureAuth(User loginUser, Picture picture);
 
     void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
+    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 }
