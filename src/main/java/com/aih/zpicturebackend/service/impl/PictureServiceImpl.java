@@ -92,10 +92,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         if (spaceId != null) {
             Space space = spaceService.getById(spaceId);
             ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
-            // 必须空间创建人（管理员）才能上传
-            if (!loginUser.getId().equals(space.getUserId())) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "对该空间无操作权限");
-            }
+            // 必须空间创建人（管理员）才能上传 => 已使用 sa-token 校验
+            // if (!loginUser.getId().equals(space.getUserId())) {
+            //     throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "对该空间无操作权限");
+            // }
             // 校验额度
             if (space.getTotalCount() >= space.getMaxCount()) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "空间剩余条数不足");
@@ -111,10 +111,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         if (pictureId != null) {
             Picture dbPicture = this.getById(pictureId);
             ThrowUtils.throwIf(dbPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
-            // 仅本人或管理员可编辑
-            if (!dbPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-            }
+            // 仅本人或管理员可编辑 => 已使用 sa-token 校验
+            // if (!dbPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            //     throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            // }
             // 校验空间是否一致
             // 没传 spaceId，则复用原有图片的 spaceId
             if (spaceId == null) {
@@ -547,8 +547,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 判断是否存在
         Picture dbPicture = this.getById(pictureId);
         ThrowUtils.throwIf(dbPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 校验权限
-        this.checkPictureAuth(loginUser, dbPicture);
+        // 校验权限 现已使用 sa-token 校验
+        // this.checkPictureAuth(loginUser, dbPicture);
         // 开启事务
         Long spaceId = dbPicture.getSpaceId();
         transactionTemplate.execute(status -> {
@@ -629,8 +629,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         long id = pictureEditRequest.getId();
         Picture oldPicture = this.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或管理员可编辑
-        this.checkPictureAuth(loginUser, oldPicture);
+        // 仅本人或管理员可编辑 现已使用sa-token
+        // this.checkPictureAuth(loginUser, oldPicture);
         // 补充审核参数
         this.fillReviewParams(picture, loginUser);
         // 操作数据库
@@ -645,8 +645,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
         Picture picture = Optional.ofNullable(this.getById(pictureId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
-        // 权限校验
-        checkPictureAuth(loginUser, picture);
+        // 权限校验 现已使用sa-token
+        // checkPictureAuth(loginUser, picture);
         // 构造请求参数
         CreateOutPaintingTaskRequest taskRequest = new CreateOutPaintingTaskRequest();
         CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();

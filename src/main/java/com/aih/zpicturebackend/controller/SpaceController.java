@@ -8,6 +8,7 @@ import com.aih.zpicturebackend.constant.UserConstant;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.exception.ThrowUtils;
+import com.aih.zpicturebackend.manage.auth.SpaceUserAuthManager;
 import com.aih.zpicturebackend.model.dto.space.*;
 import com.aih.zpicturebackend.model.entity.Space;
 import com.aih.zpicturebackend.model.entity.User;
@@ -34,6 +35,8 @@ public class SpaceController {
     private SpaceService spaceService;
     @Resource
     private UserService userService;
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
@@ -108,11 +111,11 @@ public class SpaceController {
         // 查询数据库
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        // => vo
         SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
-        // User loginUser = userService.getLoginUser(request);
-        // List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
-        // spaceVO.setPermissionList(permissionList);
-        // 获取封装类
+        // vo.set权限列表
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, userService.getLoginUser(request));
+        spaceVO.setPermissionList(permissionList);
         return ResultUtils.success(spaceVO);
     }
 

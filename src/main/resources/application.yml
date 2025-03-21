@@ -19,18 +19,19 @@ spring:
     username: root
     password: 123456
   # Redis
-    redis:
-        database: 0
-        host: localhost
-        port: 6379
-        timeout: 5000
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    timeout: 5000
   # session 配置
   session:
     store-type: redis
     timeout: 2592000 # 30天过期
+  # 上传文件大小限制
   servlet:
     multipart:
-      max-file-size: 10MB # 上传文件大小限制
+      max-file-size: 10MB # 最大10MB
 mybatis-plus:
   configuration:
     # MyBatis 配置
