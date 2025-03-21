@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.exception.ThrowUtils;
+import com.aih.zpicturebackend.manage.sharding.DynamicShardingManager;
 import com.aih.zpicturebackend.mapper.SpaceMapper;
 import com.aih.zpicturebackend.model.dto.space.SpaceAddRequest;
 import com.aih.zpicturebackend.model.dto.space.SpaceQueryRequest;
@@ -24,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -50,6 +52,11 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     private UserService userService;
     @Resource
     private SpaceUserService spaceUserService;
+
+    // 暂时不启用分表功能
+    // @Resource
+    // @Lazy
+    // private DynamicShardingManager dynamicShardingManager;
 
 
     @Override
@@ -98,8 +105,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     result = spaceUserService.save(spaceUser);
                     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "创建团队成员记录失败");
                 }
-//                // 创建分表（仅对团队空间生效）为方便部署，暂时不使用
-//                dynamicShardingManager.createSpacePictureTable(space);
+               // // 创建分表（仅对团队空间生效），暂时不使用
+               // dynamicShardingManager.createSpacePictureTable(space);
                 // 返回新写入的数据 id
                 return space.getId();
             });

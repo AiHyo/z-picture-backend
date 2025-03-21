@@ -32,17 +32,50 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB # 最大10MB
+  # 空间图片分表
+  shardingsphere:
+    datasource:
+      names: z_picture
+      z_picture:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/z_picture
+        username: root
+        password: 123456
+    rules:
+      sharding:
+        tables:
+          picture:
+            # actual-data-nodes通常情况是指定一段分表的范围，如：z_picture.picture_${0..9999}
+            # 但是我们 spaceId 为长整型变量，过长，无法通过校验，所以这里暂时先设置为逻辑表z_picture.picture
+            # 所以需要自定义 DynamicShardingManager 类 => 更新 actual-data-nodes 动态表名配置
+            actual-data-nodes: z_picture.picture
+            table-strategy:
+              standard:
+                sharding-column: spaceId # 指定分表字段
+                sharding-algorithm-name: picture_sharding_algorithm  # 指定分表算法：自定义分片算法
+        # 自定义分片算法
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED   # 基于类的分片算法
+            props:
+              strategy: standard
+              algorithmClassName: com.aih.zpicturebackend.manage.sharding.PictureShardingAlgorithm
+
+    props:
+      sql-show: true
+
+# Mybatis-plus
 mybatis-plus:
   configuration:
-    # MyBatis 配置
     map-underscore-to-camel-case: false
-    # 仅在开发环境打印日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 仅在开发环境打印日志
   global-config:
+    # 若需要动态分表，必须要开启 SQL 执行分析器
     enable-sql-runner: true
     db-config:
-      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
-      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-delete-field: isDelete # 逻辑删除的实体字段名
+      logic-delete-value: 1     # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 # 接口文档配置
 knife4j:
