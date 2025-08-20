@@ -1,4 +1,4 @@
-# Z-Picture 图片管理系统
+# Z-Picture 图片管理系统 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AiHyo/z-picture-backend)
 
 <div align="center">
   <img src="https://img.shields.io/badge/Spring%20Boot-2.7.6-brightgreen" alt="Spring Boot">
