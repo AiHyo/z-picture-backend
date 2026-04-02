@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.0}
+    container_name: z-picture-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: z_picture
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/z_picture.sql:/docker-entrypoint-initdb.d/01_z_picture.sql:ro
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    container_name: z-picture-redis
+    restart: always
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDER_IMAGE: ${BUILDER_IMAGE:-maven:3.9.14-eclipse-temurin-8-noble}
+        RUNTIME_IMAGE: ${RUNTIME_IMAGE:-eclipse-temurin:8-jre}
+    container_name: z-picture-backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8123:8123"
+
+volumes:
+  mysql_data:
+  redis_data:

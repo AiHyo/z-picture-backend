@@ -9,7 +9,7 @@ server:
 
 spring:
   profiles:
-    active: local
+    default: local
   application:
     name: z-picture-backend
   # 数据库

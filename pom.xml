@@ -161,8 +161,8 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
+                    <!-- Docker 和本地 java -jar 都依赖可执行 fat jar，这里不能跳过 repackage -->
                     <mainClass>com.aih.zpicturebackend.ZPictureBackendApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>

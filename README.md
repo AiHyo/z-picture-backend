@@ -8,6 +8,17 @@
   <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
 </div>
 
+## Docker 快速启动
+
+```bash
+cd z-picture-backend
+docker compose up -d --build
+```
+
+启动后访问：http://localhost:8123/api/doc.html
+
+> 首次启动会自动初始化数据库（执行 `sql/z_picture.sql`）
+
 ## 项目简介
 分为公共图库、私有图库和团队共享图库。
 
