@@ -4,7 +4,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.annotaion.AuthCheck;
-import com.aih.zpicturebackend.api.aliYunai.AliYunAiApi;
 import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskResponse;
 import com.aih.zpicturebackend.api.aliYunai.model.GetOutPaintingTaskResponse;
 import com.aih.zpicturebackend.api.imagesearch.ImageSearchApiFacade;
@@ -22,11 +21,22 @@ import com.aih.zpicturebackend.manage.auth.annotation.SaSpaceCheckPermission;
 import com.aih.zpicturebackend.manage.auth.model.SpaceUserPermissionConstant;
 import com.aih.zpicturebackend.model.dto.picture.*;
 import com.aih.zpicturebackend.model.entity.Picture;
+import com.aih.zpicturebackend.model.entity.PictureCategory;
+import com.aih.zpicturebackend.model.entity.PictureReport;
+import com.aih.zpicturebackend.model.entity.PictureTag;
 import com.aih.zpicturebackend.model.entity.Space;
 import com.aih.zpicturebackend.model.entity.User;
 import com.aih.zpicturebackend.model.enums.PictureReviewStatusEnum;
+import com.aih.zpicturebackend.model.vo.PictureAiTaskVO;
+import com.aih.zpicturebackend.model.vo.PictureCategoryVO;
+import com.aih.zpicturebackend.model.vo.PictureReportVO;
 import com.aih.zpicturebackend.model.vo.PictureTagCategory;
+import com.aih.zpicturebackend.model.vo.PictureTagVO;
 import com.aih.zpicturebackend.model.vo.PictureVO;
+import com.aih.zpicturebackend.service.PictureAiTaskService;
+import com.aih.zpicturebackend.service.PictureCategoryService;
+import com.aih.zpicturebackend.service.PictureReportService;
+import com.aih.zpicturebackend.service.PictureTagService;
 import com.aih.zpicturebackend.service.PictureService;
 import com.aih.zpicturebackend.service.SpaceService;
 import com.aih.zpicturebackend.service.UserService;
@@ -59,9 +69,15 @@ public class PictureController {
     @Resource
     private SpaceService spaceService;
     @Resource
-    private AliYunAiApi aliYunAiApi;
-    @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
+    @Resource
+    private PictureAiTaskService pictureAiTaskService;
+    @Resource
+    private PictureReportService pictureReportService;
+    @Resource
+    private PictureTagService pictureTagService;
+    @Resource
+    private PictureCategoryService pictureCategoryService;
 
     /**
      * 本地缓存
@@ -196,7 +212,7 @@ public class PictureController {
         // => vo
         PictureVO pictureVO = pictureService.getPictureVO(picture, request);
         // vo.set权限列表
-        List<String> permissionList = spaceUserAuthManager.getPermissionList(spaceService.getById(spaceId), userService.getLoginUser(request));
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(spaceService.getById(spaceId), getLoginUserOrNull(request));
         pictureVO.setPermissionList(permissionList);
         return ResultUtils.success(pictureVO);
     }
@@ -349,8 +365,14 @@ public class PictureController {
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("风光", "人文", "城市", "艺术", "游戏", "动物", "植物", "抽象", "明星", "动漫感");
-        List<String> categoryList = Arrays.asList("静物", "动态", "特别", "极简", "复古", "特写", "航拍", "天气", "光影", "夜色", "色彩");
+        List<String> tagList = pictureTagService.listTagNameList();
+        List<String> categoryList = pictureCategoryService.listCategoryNameList();
+        if (tagList.isEmpty()) {
+            tagList = Arrays.asList("风光", "人文", "城市", "艺术", "游戏", "动物", "植物", "抽象", "明星", "动漫感");
+        }
+        if (categoryList.isEmpty()) {
+            categoryList = Arrays.asList("静物", "动态", "特别", "极简", "复古", "特写", "航拍", "天气", "光影", "夜色", "色彩");
+        }
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
@@ -377,7 +399,7 @@ public class PictureController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        CreateOutPaintingTaskResponse response = pictureService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, loginUser);
+        CreateOutPaintingTaskResponse response = pictureAiTaskService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, loginUser);
         return ResultUtils.success(response);
     }
 
@@ -387,9 +409,156 @@ public class PictureController {
     @GetMapping("/out_painting/get_task")
     public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
         ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
-        GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
+        GetOutPaintingTaskResponse task = pictureAiTaskService.getPictureOutPaintingTask(taskId);
         return ResultUtils.success(task);
     }
 
+    @PostMapping("/out_painting/list/my")
+    public BaseResponse<Page<PictureAiTaskVO>> listMyPictureAiTask(@RequestBody(required = false) PictureAiTaskQueryRequest pictureAiTaskQueryRequest,
+                                                                   HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(pictureAiTaskService.listMyPictureAiTaskPage(pictureAiTaskQueryRequest, loginUser));
+    }
+
+    @PostMapping("/report/add")
+    public BaseResponse<Long> addPictureReport(@RequestBody PictureReportAddRequest pictureReportAddRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        long id = pictureReportService.addPictureReport(pictureReportAddRequest, loginUser);
+        return ResultUtils.success(id);
+    }
+
+    @PostMapping("/report/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<PictureReportVO>> listPictureReportByPage(@RequestBody(required = false) PictureReportQueryRequest pictureReportQueryRequest) {
+        PictureReportQueryRequest queryRequest = pictureReportQueryRequest == null ? new PictureReportQueryRequest() : pictureReportQueryRequest;
+        Page<PictureReport> pictureReportPage = pictureReportService.page(
+                new Page<>(queryRequest.getCurrent(), queryRequest.getPageSize()),
+                pictureReportService.getQueryWrapper(queryRequest)
+        );
+        return ResultUtils.success(pictureReportService.getPictureReportVOPage(pictureReportPage));
+    }
+
+    @PostMapping("/report/process")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> processPictureReport(@RequestBody PictureReportProcessRequest pictureReportProcessRequest,
+                                                      HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        pictureReportService.processPictureReport(pictureReportProcessRequest, loginUser);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/tag/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addPictureTag(@RequestBody PictureTagAddRequest pictureTagAddRequest) {
+        ThrowUtils.throwIf(pictureTagAddRequest == null, ErrorCode.PARAMS_ERROR);
+        pictureTagService.validTagName(pictureTagAddRequest.getTagName());
+        boolean exists = pictureTagService.lambdaQuery()
+                .eq(PictureTag::getTagName, pictureTagAddRequest.getTagName())
+                .exists();
+        ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "标签已存在");
+        PictureTag pictureTag = new PictureTag();
+        pictureTag.setTagName(pictureTagAddRequest.getTagName());
+        boolean result = pictureTagService.save(pictureTag);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(pictureTag.getId());
+    }
+
+    @PostMapping("/tag/edit")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> editPictureTag(@RequestBody PictureTagEditRequest pictureTagEditRequest) {
+        ThrowUtils.throwIf(pictureTagEditRequest == null || pictureTagEditRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        pictureTagService.validTagName(pictureTagEditRequest.getTagName());
+        PictureTag dbPictureTag = pictureTagService.getById(pictureTagEditRequest.getId());
+        ThrowUtils.throwIf(dbPictureTag == null, ErrorCode.NOT_FOUND_ERROR);
+        boolean exists = pictureTagService.lambdaQuery()
+                .eq(PictureTag::getTagName, pictureTagEditRequest.getTagName())
+                .ne(PictureTag::getId, pictureTagEditRequest.getId())
+                .exists();
+        ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "标签已存在");
+        dbPictureTag.setTagName(pictureTagEditRequest.getTagName());
+        boolean result = pictureTagService.updateById(dbPictureTag);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/tag/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deletePictureTag(@RequestBody DeleteRequest deleteRequest) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        boolean result = pictureTagService.removeById(deleteRequest.getId());
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/tag/list")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<List<PictureTagVO>> listPictureTag(@RequestBody(required = false) PictureTagQueryRequest pictureTagQueryRequest) {
+        List<PictureTag> pictureTagList = pictureTagService.list(pictureTagService.getQueryWrapper(pictureTagQueryRequest));
+        return ResultUtils.success(pictureTagService.getPictureTagVOList(pictureTagList));
+    }
+
+    @PostMapping("/category/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addPictureCategory(@RequestBody PictureCategoryAddRequest pictureCategoryAddRequest) {
+        ThrowUtils.throwIf(pictureCategoryAddRequest == null, ErrorCode.PARAMS_ERROR);
+        pictureCategoryService.validCategoryName(pictureCategoryAddRequest.getCategoryName());
+        boolean exists = pictureCategoryService.lambdaQuery()
+                .eq(PictureCategory::getCategoryName, pictureCategoryAddRequest.getCategoryName())
+                .exists();
+        ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "分类已存在");
+        PictureCategory pictureCategory = new PictureCategory();
+        pictureCategory.setCategoryName(pictureCategoryAddRequest.getCategoryName());
+        boolean result = pictureCategoryService.save(pictureCategory);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(pictureCategory.getId());
+    }
+
+    @PostMapping("/category/edit")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> editPictureCategory(@RequestBody PictureCategoryEditRequest pictureCategoryEditRequest) {
+        ThrowUtils.throwIf(pictureCategoryEditRequest == null || pictureCategoryEditRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        pictureCategoryService.validCategoryName(pictureCategoryEditRequest.getCategoryName());
+        PictureCategory dbPictureCategory = pictureCategoryService.getById(pictureCategoryEditRequest.getId());
+        ThrowUtils.throwIf(dbPictureCategory == null, ErrorCode.NOT_FOUND_ERROR);
+        boolean exists = pictureCategoryService.lambdaQuery()
+                .eq(PictureCategory::getCategoryName, pictureCategoryEditRequest.getCategoryName())
+                .ne(PictureCategory::getId, pictureCategoryEditRequest.getId())
+                .exists();
+        ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "分类已存在");
+        dbPictureCategory.setCategoryName(pictureCategoryEditRequest.getCategoryName());
+        boolean result = pictureCategoryService.updateById(dbPictureCategory);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/category/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deletePictureCategory(@RequestBody DeleteRequest deleteRequest) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        boolean result = pictureCategoryService.removeById(deleteRequest.getId());
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/category/list")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<List<PictureCategoryVO>> listPictureCategory(@RequestBody(required = false) PictureCategoryQueryRequest pictureCategoryQueryRequest) {
+        List<PictureCategory> pictureCategoryList = pictureCategoryService.list(pictureCategoryService.getQueryWrapper(pictureCategoryQueryRequest));
+        return ResultUtils.success(pictureCategoryService.getPictureCategoryVOList(pictureCategoryList));
+    }
+
+    /**
+     * 公共图库详情允许未登录访问，这里仅在需要补前端权限列表时尝试取登录用户
+     */
+    private User getLoginUserOrNull(HttpServletRequest request) {
+        try {
+            return userService.getLoginUser(request);
+        } catch (BusinessException e) {
+            if (e.getCode() == ErrorCode.NOT_LOGIN_ERROR.getCode()) {
+                return null;
+            }
+            throw e;
+        }
+    }
 
 }

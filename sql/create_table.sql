@@ -113,3 +113,131 @@ create table if not exists space_user
     INDEX idx_userId (userId)                       -- 提升按用户查询的性能
 ) comment '空间用户关联' collate = utf8mb4_unicode_ci;
 
+
+-- 空间邀请表
+create table if not exists space_invite
+(
+    id            bigint auto_increment comment 'id' primary key,
+    spaceId       bigint                                 not null comment '空间 id',
+    inviterId     bigint                                 not null comment '邀请人 id',
+    inviteeId     bigint                                 not null comment '被邀请人 id',
+    spaceRole     varchar(128) default 'viewer'          not null comment '邀请角色：viewer/editor',
+    inviteMessage varchar(512)                           null comment '邀请说明',
+    inviteStatus  tinyint      default 0                 not null comment '邀请状态：0-待处理 1-已接受 2-已拒绝 3-已取消',
+    handleTime    datetime                               null comment '处理时间',
+    createTime    datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    INDEX idx_spaceId (spaceId),
+    INDEX idx_inviteeId (inviteeId),
+    INDEX idx_inviteStatus (inviteStatus)
+) comment '空间邀请' collate = utf8mb4_unicode_ci;
+
+
+-- 图片 AI 任务表
+create table if not exists picture_ai_task
+(
+    id             bigint auto_increment comment 'id' primary key,
+    pictureId      bigint                                 not null comment '图片 id',
+    userId         bigint                                 not null comment '用户 id',
+    taskType       varchar(64)  default 'out_painting'    not null comment '任务类型',
+    externalTaskId varchar(128)                           not null comment '外部任务 id',
+    taskStatus     tinyint      default 1                 not null comment '任务状态：0-待处理 1-处理中 2-成功 3-失败',
+    requestParams  varchar(1024)                          null comment '任务参数',
+    resultUrl      varchar(512)                           null comment '结果图地址',
+    errorMessage   varchar(512)                           null comment '失败信息',
+    finishTime     datetime                               null comment '完成时间',
+    createTime     datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime     datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    UNIQUE KEY uk_externalTaskId (externalTaskId),
+    INDEX idx_pictureId (pictureId),
+    INDEX idx_userId (userId),
+    INDEX idx_taskStatus (taskStatus)
+) comment '图片 AI 任务' collate = utf8mb4_unicode_ci;
+
+
+-- 图片举报表
+create table if not exists picture_report
+(
+    id               bigint auto_increment comment 'id' primary key,
+    pictureId        bigint                                 not null comment '图片 id',
+    reporterId       bigint                                 not null comment '举报人 id',
+    reportReasonType varchar(64)                            not null comment '举报类型',
+    reportReasonText varchar(512)                           null comment '举报说明',
+    reportStatus     tinyint      default 0                 not null comment '处理状态：0-待处理 1-举报成立 2-举报驳回',
+    processorId      bigint                                 null comment '处理人 id',
+    processResult    varchar(512)                           null comment '处理结果',
+    processTime      datetime                               null comment '处理时间',
+    createTime       datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime       datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    INDEX idx_pictureId (pictureId),
+    INDEX idx_reporterId (reporterId),
+    INDEX idx_reportStatus (reportStatus)
+) comment '图片举报' collate = utf8mb4_unicode_ci;
+
+
+-- 图片标签表
+create table if not exists picture_tag
+(
+    id         bigint auto_increment comment 'id' primary key,
+    tagName    varchar(64)                            not null comment '标签名称',
+    createTime datetime default CURRENT_TIMESTAMP     not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP     not null on update CURRENT_TIMESTAMP comment '更新时间',
+    UNIQUE KEY uk_tagName (tagName)
+) comment '图片标签字典' collate = utf8mb4_unicode_ci;
+
+
+-- 图片分类表
+create table if not exists picture_category
+(
+    id           bigint auto_increment comment 'id' primary key,
+    categoryName varchar(64)                            not null comment '分类名称',
+    createTime   datetime default CURRENT_TIMESTAMP     not null comment '创建时间',
+    updateTime   datetime default CURRENT_TIMESTAMP     not null on update CURRENT_TIMESTAMP comment '更新时间',
+    UNIQUE KEY uk_categoryName (categoryName)
+) comment '图片分类字典' collate = utf8mb4_unicode_ci;
+
+
+-- 空间公告表
+create table if not exists space_notice
+(
+    id         bigint auto_increment comment 'id' primary key,
+    spaceId    bigint                                 not null comment '空间 id',
+    userId     bigint                                 not null comment '发布人 id',
+    title      varchar(128)                           not null comment '公告标题',
+    content    varchar(1024)                          not null comment '公告内容',
+    isPinned   tinyint      default 0                 not null comment '是否置顶：0-否 1-是',
+    createTime datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    INDEX idx_spaceId (spaceId),
+    INDEX idx_isPinned (isPinned)
+) comment '空间公告' collate = utf8mb4_unicode_ci;
+
+
+-- 初始化默认标签
+insert ignore into picture_tag (tagName)
+values ('风光'),
+       ('人文'),
+       ('城市'),
+       ('艺术'),
+       ('游戏'),
+       ('动物'),
+       ('植物'),
+       ('抽象'),
+       ('明星'),
+       ('动漫感');
+
+
+-- 初始化默认分类
+insert ignore into picture_category (categoryName)
+values ('静物'),
+       ('动态'),
+       ('特别'),
+       ('极简'),
+       ('复古'),
+       ('特写'),
+       ('航拍'),
+       ('天气'),
+       ('光影'),
+       ('夜色'),
+       ('色彩');
+
