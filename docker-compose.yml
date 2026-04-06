@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: ${MYSQL_IMAGE:-mysql:8.0}
+    image: ${MYSQL_IMAGE:-m.daocloud.io/docker.io/library/mysql:8.4.8}
     container_name: z-picture-mysql
     restart: always
     environment:
@@ -11,7 +11,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/z_picture.sql:/docker-entrypoint-initdb.d/01_z_picture.sql:ro
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
       interval: 10s
@@ -19,7 +19,7 @@ services:
       retries: 5
 
   redis:
-    image: ${REDIS_IMAGE:-redis:7-alpine}
+    image: ${REDIS_IMAGE:-m.daocloud.io/docker.io/library/redis:7-alpine}
     container_name: z-picture-redis
     restart: always
     ports:
@@ -37,8 +37,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILDER_IMAGE: ${BUILDER_IMAGE:-maven:3.9.14-eclipse-temurin-8-noble}
-        RUNTIME_IMAGE: ${RUNTIME_IMAGE:-eclipse-temurin:8-jre}
+        BUILDER_IMAGE: ${BUILDER_IMAGE:-m.daocloud.io/docker.io/library/maven:3.9.6-eclipse-temurin-8}
+        RUNTIME_IMAGE: ${RUNTIME_IMAGE:-m.daocloud.io/docker.io/library/eclipse-temurin:8-jre}
     container_name: z-picture-backend
     restart: always
     depends_on:

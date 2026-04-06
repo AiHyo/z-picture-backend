@@ -1,5 +1,5 @@
-ARG BUILDER_IMAGE=maven:3.9.14-eclipse-temurin-8-noble
-ARG RUNTIME_IMAGE=eclipse-temurin:8-jre
+ARG BUILDER_IMAGE=m.daocloud.io/docker.io/library/maven:3.9.6-eclipse-temurin-8
+ARG RUNTIME_IMAGE=m.daocloud.io/docker.io/library/eclipse-temurin:8-jre
 
 # 构建阶段
 FROM ${BUILDER_IMAGE} AS builder
