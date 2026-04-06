@@ -1,14 +1,10 @@
 package com.aih.zpicturebackend.api.imagesearch;
 
+import com.aih.zpicturebackend.api.imagesearch.baidu.BaiduImageSearchClient;
 import com.aih.zpicturebackend.api.imagesearch.model.ImageSearchResult;
-import com.aih.zpicturebackend.api.imagesearch.sub.GetImageFirstUrlApi;
-import com.aih.zpicturebackend.api.imagesearch.sub.GetImageListApi;
-import com.aih.zpicturebackend.api.imagesearch.sub.GetImagePageUrlApi;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-@Slf4j
 public class ImageSearchApiFacade {
 
     /**
@@ -18,10 +14,7 @@ public class ImageSearchApiFacade {
      * @return
      */
     public static List<ImageSearchResult> searchImage(String imageUrl) {
-        String imagePageUrl = GetImagePageUrlApi.getImagePageUrl(imageUrl);
-        String imageFirstUrl = GetImageFirstUrlApi.getImageFirstUrl(imagePageUrl);
-        List<ImageSearchResult> imageList = GetImageListApi.getImageList(imageFirstUrl);
-        return imageList;
+        return BaiduImageSearchClient.search(imageUrl);
     }
 
     public static void main(String[] args) {
