@@ -2,13 +2,12 @@ package com.aih.zpicturebackend.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.aih.zpicturebackend.exception.BusinessException;
-import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.mapper.PictureCategoryMapper;
 import com.aih.zpicturebackend.model.dto.picture.PictureCategoryQueryRequest;
 import com.aih.zpicturebackend.model.entity.PictureCategory;
 import com.aih.zpicturebackend.model.vo.PictureCategoryVO;
 import com.aih.zpicturebackend.service.PictureCategoryService;
+import com.aih.zpicturebackend.utils.PictureMetaUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -23,12 +22,7 @@ public class PictureCategoryServiceImpl extends ServiceImpl<PictureCategoryMappe
 
     @Override
     public void validCategoryName(String categoryName) {
-        if (StrUtil.isBlank(categoryName)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "分类名称不能为空");
-        }
-        if (categoryName.length() > 30) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "分类名称过长");
-        }
+        PictureMetaUtils.validateCategory(categoryName);
     }
 
     @Override

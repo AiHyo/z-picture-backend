@@ -7,6 +7,9 @@ import com.aih.zpicturebackend.constant.UserConstant;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.manage.CosManager;
+import com.aih.zpicturebackend.manage.upload.FilePictureUpload;
+import com.aih.zpicturebackend.model.dto.file.UploadPictureResult;
+import com.aih.zpicturebackend.service.UserService;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;
@@ -26,6 +29,10 @@ import java.io.IOException;
 public class FileController {
     @Resource
     private CosManager cosManager;
+    @Resource
+    private FilePictureUpload filePictureUpload;
+    @Resource
+    private UserService userService;
 
     /**
      * 测试文件上传
@@ -60,6 +67,16 @@ public class FileController {
                 }
             }
         }
+    }
+
+    /**
+     * 上传头像
+     */
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadAvatar(@RequestPart("file") MultipartFile multipartFile, HttpServletRequest request) {
+        userService.getLoginUser(request);
+        UploadPictureResult uploadPictureResult = filePictureUpload.uploadPicture(multipartFile, "avatar");
+        return ResultUtils.success(uploadPictureResult.getUrl());
     }
 
 

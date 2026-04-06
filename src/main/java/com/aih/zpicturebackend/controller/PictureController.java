@@ -40,6 +40,7 @@ import com.aih.zpicturebackend.service.PictureTagService;
 import com.aih.zpicturebackend.service.PictureService;
 import com.aih.zpicturebackend.service.SpaceService;
 import com.aih.zpicturebackend.service.UserService;
+import com.aih.zpicturebackend.utils.PictureMetaUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -52,7 +53,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -164,7 +164,12 @@ public class PictureController {
         // 将实体类和 DTO 进行转换
         Picture picture = new Picture();
         BeanUtils.copyProperties(pictureUpdateRequest, picture);
-        picture.setTags(JSONUtil.toJsonStr(pictureUpdateRequest.getTags()));// 将 list 转为 string
+        String category = PictureMetaUtils.normalizeCategory(pictureUpdateRequest.getCategory());
+        if (StrUtil.isNotBlank(category)) {
+            PictureMetaUtils.validateMetaValueLength(category, "分类");
+        }
+        picture.setCategory(category);
+        picture.setTags(PictureMetaUtils.toTagsJson(pictureUpdateRequest.getTags()));// 将 list 转为 string
         // 数据校验
         pictureService.validPicture(picture);
         // 判断是否存在
@@ -363,19 +368,20 @@ public class PictureController {
 
 
     @GetMapping("/tag_category")
-    public BaseResponse<PictureTagCategory> listPictureTagCategory() {
-        PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = pictureTagService.listTagNameList();
-        List<String> categoryList = pictureCategoryService.listCategoryNameList();
-        if (tagList.isEmpty()) {
-            tagList = Arrays.asList("风光", "人文", "城市", "艺术", "游戏", "动物", "植物", "抽象", "明星", "动漫感");
+    public BaseResponse<PictureTagCategory> listPictureTagCategory(@RequestParam(required = false) Long spaceId,
+                                                                   HttpServletRequest request) {
+        if (spaceId != null) {
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+            ThrowUtils.throwIf(!permissionList.contains(SpaceUserPermissionConstant.PICTURE_VIEW)
+                    && !permissionList.contains(SpaceUserPermissionConstant.PICTURE_UPLOAD)
+                    && !permissionList.contains(SpaceUserPermissionConstant.PICTURE_EDIT)
+                    && !permissionList.contains(SpaceUserPermissionConstant.SPACE_USER_MANAGE),
+                    ErrorCode.NO_AUTH_ERROR);
         }
-        if (categoryList.isEmpty()) {
-            categoryList = Arrays.asList("静物", "动态", "特别", "极简", "复古", "特写", "航拍", "天气", "光影", "夜色", "色彩");
-        }
-        pictureTagCategory.setTagList(tagList);
-        pictureTagCategory.setCategoryList(categoryList);
-        return ResultUtils.success(pictureTagCategory);
+        return ResultUtils.success(pictureService.listPictureTagCategory(spaceId));
     }
 
     @PostMapping("/review")
@@ -451,13 +457,14 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addPictureTag(@RequestBody PictureTagAddRequest pictureTagAddRequest) {
         ThrowUtils.throwIf(pictureTagAddRequest == null, ErrorCode.PARAMS_ERROR);
-        pictureTagService.validTagName(pictureTagAddRequest.getTagName());
+        String tagName = PictureMetaUtils.normalizeTag(pictureTagAddRequest.getTagName());
+        pictureTagService.validTagName(tagName);
         boolean exists = pictureTagService.lambdaQuery()
-                .eq(PictureTag::getTagName, pictureTagAddRequest.getTagName())
+                .eq(PictureTag::getTagName, tagName)
                 .exists();
         ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "标签已存在");
         PictureTag pictureTag = new PictureTag();
-        pictureTag.setTagName(pictureTagAddRequest.getTagName());
+        pictureTag.setTagName(tagName);
         boolean result = pictureTagService.save(pictureTag);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(pictureTag.getId());
@@ -467,15 +474,16 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> editPictureTag(@RequestBody PictureTagEditRequest pictureTagEditRequest) {
         ThrowUtils.throwIf(pictureTagEditRequest == null || pictureTagEditRequest.getId() == null, ErrorCode.PARAMS_ERROR);
-        pictureTagService.validTagName(pictureTagEditRequest.getTagName());
+        String tagName = PictureMetaUtils.normalizeTag(pictureTagEditRequest.getTagName());
+        pictureTagService.validTagName(tagName);
         PictureTag dbPictureTag = pictureTagService.getById(pictureTagEditRequest.getId());
         ThrowUtils.throwIf(dbPictureTag == null, ErrorCode.NOT_FOUND_ERROR);
         boolean exists = pictureTagService.lambdaQuery()
-                .eq(PictureTag::getTagName, pictureTagEditRequest.getTagName())
+                .eq(PictureTag::getTagName, tagName)
                 .ne(PictureTag::getId, pictureTagEditRequest.getId())
                 .exists();
         ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "标签已存在");
-        dbPictureTag.setTagName(pictureTagEditRequest.getTagName());
+        dbPictureTag.setTagName(tagName);
         boolean result = pictureTagService.updateById(dbPictureTag);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
@@ -501,13 +509,14 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addPictureCategory(@RequestBody PictureCategoryAddRequest pictureCategoryAddRequest) {
         ThrowUtils.throwIf(pictureCategoryAddRequest == null, ErrorCode.PARAMS_ERROR);
-        pictureCategoryService.validCategoryName(pictureCategoryAddRequest.getCategoryName());
+        String categoryName = PictureMetaUtils.normalizeCategory(pictureCategoryAddRequest.getCategoryName());
+        pictureCategoryService.validCategoryName(categoryName);
         boolean exists = pictureCategoryService.lambdaQuery()
-                .eq(PictureCategory::getCategoryName, pictureCategoryAddRequest.getCategoryName())
+                .eq(PictureCategory::getCategoryName, categoryName)
                 .exists();
         ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "分类已存在");
         PictureCategory pictureCategory = new PictureCategory();
-        pictureCategory.setCategoryName(pictureCategoryAddRequest.getCategoryName());
+        pictureCategory.setCategoryName(categoryName);
         boolean result = pictureCategoryService.save(pictureCategory);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(pictureCategory.getId());
@@ -517,15 +526,16 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> editPictureCategory(@RequestBody PictureCategoryEditRequest pictureCategoryEditRequest) {
         ThrowUtils.throwIf(pictureCategoryEditRequest == null || pictureCategoryEditRequest.getId() == null, ErrorCode.PARAMS_ERROR);
-        pictureCategoryService.validCategoryName(pictureCategoryEditRequest.getCategoryName());
+        String categoryName = PictureMetaUtils.normalizeCategory(pictureCategoryEditRequest.getCategoryName());
+        pictureCategoryService.validCategoryName(categoryName);
         PictureCategory dbPictureCategory = pictureCategoryService.getById(pictureCategoryEditRequest.getId());
         ThrowUtils.throwIf(dbPictureCategory == null, ErrorCode.NOT_FOUND_ERROR);
         boolean exists = pictureCategoryService.lambdaQuery()
-                .eq(PictureCategory::getCategoryName, pictureCategoryEditRequest.getCategoryName())
+                .eq(PictureCategory::getCategoryName, categoryName)
                 .ne(PictureCategory::getId, pictureCategoryEditRequest.getId())
                 .exists();
         ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "分类已存在");
-        dbPictureCategory.setCategoryName(pictureCategoryEditRequest.getCategoryName());
+        dbPictureCategory.setCategoryName(categoryName);
         boolean result = pictureCategoryService.updateById(dbPictureCategory);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

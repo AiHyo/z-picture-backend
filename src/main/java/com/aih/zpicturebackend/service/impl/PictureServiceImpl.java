@@ -5,7 +5,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
-import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.api.aliYunai.AliYunAiApi;
 import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskRequest;
 import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskResponse;
@@ -26,12 +25,16 @@ import com.aih.zpicturebackend.model.entity.Picture;
 import com.aih.zpicturebackend.model.entity.Space;
 import com.aih.zpicturebackend.model.entity.User;
 import com.aih.zpicturebackend.model.enums.PictureReviewStatusEnum;
+import com.aih.zpicturebackend.model.vo.PictureTagCategory;
 import com.aih.zpicturebackend.model.vo.PictureVO;
 import com.aih.zpicturebackend.model.vo.UserVO;
+import com.aih.zpicturebackend.service.PictureCategoryService;
 import com.aih.zpicturebackend.service.PictureService;
+import com.aih.zpicturebackend.service.PictureTagService;
 import com.aih.zpicturebackend.service.SpaceService;
 import com.aih.zpicturebackend.service.UserService;
 import com.aih.zpicturebackend.utils.ColorSimilarUtils;
+import com.aih.zpicturebackend.utils.PictureMetaUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -79,6 +82,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private UserService userService;
     @Resource
     private SpaceService spaceService;
+    @Resource
+    private PictureTagService pictureTagService;
+    @Resource
+    private PictureCategoryService pictureCategoryService;
     @Resource
     private TransactionTemplate transactionTemplate;
     @Resource
@@ -189,19 +196,19 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         // 从对象中取值 allget()
         Long id = pictureQueryRequest.getId();
-        String name = pictureQueryRequest.getName();
-        String introduction = pictureQueryRequest.getIntroduction();
-        String category = pictureQueryRequest.getCategory();
-        List<String> tags = pictureQueryRequest.getTags();
+        String name = PictureMetaUtils.normalizeSearchText(pictureQueryRequest.getName());
+        String introduction = PictureMetaUtils.normalizeSearchText(pictureQueryRequest.getIntroduction());
+        String category = PictureMetaUtils.normalizeCategory(pictureQueryRequest.getCategory());
+        List<String> tags = PictureMetaUtils.normalizeTags(pictureQueryRequest.getTags());
         Long picSize = pictureQueryRequest.getPicSize();
         Integer picWidth = pictureQueryRequest.getPicWidth();
         Integer picHeight = pictureQueryRequest.getPicHeight();
         Double picScale = pictureQueryRequest.getPicScale();
-        String picFormat = pictureQueryRequest.getPicFormat();
-        String searchText = pictureQueryRequest.getSearchText();
+        String picFormat = PictureMetaUtils.normalizeSearchText(pictureQueryRequest.getPicFormat());
+        String searchText = PictureMetaUtils.normalizeSearchText(pictureQueryRequest.getSearchText());
         Long userId = pictureQueryRequest.getUserId();
         Integer reviewStatus = pictureQueryRequest.getReviewStatus();
-        String reviewMessage = pictureQueryRequest.getReviewMessage();
+        String reviewMessage = PictureMetaUtils.normalizeSearchText(pictureQueryRequest.getReviewMessage());
         Long reviewerId = pictureQueryRequest.getReviewerId();
         String sortField = pictureQueryRequest.getSortField();
         String sortOrder = pictureQueryRequest.getSortOrder();
@@ -212,11 +219,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 从多字段中搜索
         if (StrUtil.isNotBlank(searchText)) {
             // 需要拼接查询条件
-            // and ( name like '%searchText%' or introduction like '%searchText%' )
+            // and ( name like '%searchText%' or introduction like '%searchText%' or category like ... or tags like ... )
             queryWrapper.and(qw -> qw
                     .like("name", searchText)
                     .or()
                     .like("introduction", searchText)
+                    .or()
+                    .like("category", searchText)
+                    .or()
+                    .like("tags", searchText)
             );
         }
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
@@ -224,7 +235,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.like(StrUtil.isNotBlank(name), "name", name);
         queryWrapper.like(StrUtil.isNotBlank(introduction), "introduction", introduction);
         queryWrapper.like(StrUtil.isNotBlank(picFormat), "picFormat", picFormat);
-        queryWrapper.eq(StrUtil.isNotBlank(category), "category", category);
+        queryWrapper.apply(StrUtil.isNotBlank(category), "TRIM(category) = {0}", category);
         queryWrapper.eq(ObjUtil.isNotEmpty(picWidth), "picWidth", picWidth);
         queryWrapper.eq(ObjUtil.isNotEmpty(picHeight), "picHeight", picHeight);
         queryWrapper.eq(ObjUtil.isNotEmpty(picSize), "picSize", picSize);
@@ -244,8 +255,37 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             }
         }
         // 排序
-        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), "ascend".equals(sortOrder), sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public PictureTagCategory listPictureTagCategory(Long spaceId) {
+        List<String> spaceCategoryList = listSpaceCategorySuggestions(spaceId);
+        List<String> spaceTagList = listSpaceTagSuggestions(spaceId);
+        List<String> globalCategoryList = pictureCategoryService.listCategoryNameList().stream()
+                .map(PictureMetaUtils::normalizeCategory)
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toList());
+        List<String> globalTagList = pictureTagService.listTagNameList().stream()
+                .map(PictureMetaUtils::normalizeTag)
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toList());
+
+        PictureTagCategory pictureTagCategory = new PictureTagCategory();
+        pictureTagCategory.setCategoryList(PictureMetaUtils.mergeSuggestions(
+                PictureMetaUtils.CATEGORY_SUGGESTION_LIMIT,
+                spaceCategoryList,
+                globalCategoryList,
+                PictureMetaUtils.DEFAULT_CATEGORY_LIST
+        ));
+        pictureTagCategory.setTagList(PictureMetaUtils.mergeSuggestions(
+                PictureMetaUtils.TAG_SUGGESTION_LIMIT,
+                spaceTagList,
+                globalTagList,
+                PictureMetaUtils.DEFAULT_TAG_LIST
+        ));
+        return pictureTagCategory;
     }
 
     @Override
@@ -401,11 +441,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Override
     public Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
         // 格式化数量
-        String searchText = pictureUploadByBatchRequest.getSearchText();
+        String searchText = PictureMetaUtils.normalizeSearchText(pictureUploadByBatchRequest.getSearchText());
         Integer count = pictureUploadByBatchRequest.getCount();
         String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
-        String category = pictureUploadByBatchRequest.getCategory();
-        String tags = JSONUtil.toJsonStr(pictureUploadByBatchRequest.getTags());
+        String category = PictureMetaUtils.normalizeCategory(pictureUploadByBatchRequest.getCategory());
+        String tags = PictureMetaUtils.toTagsJson(pictureUploadByBatchRequest.getTags());
+        if (StrUtil.isNotBlank(category)) {
+            PictureMetaUtils.validateMetaValueLength(category, "分类");
+        }
         if (StrUtil.isBlank(namePrefix)) { // 若为空，则默认等于搜索关键字
             namePrefix = searchText;
         }
@@ -470,8 +513,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser) {
         List<Long> pictureIdList = pictureEditByBatchRequest.getPictureIdList();
         Long spaceId = pictureEditByBatchRequest.getSpaceId();
-        String category = pictureEditByBatchRequest.getCategory();
-        List<String> tags = pictureEditByBatchRequest.getTags();
+        String category = PictureMetaUtils.normalizeCategory(pictureEditByBatchRequest.getCategory());
+        List<String> tags = PictureMetaUtils.normalizeTags(pictureEditByBatchRequest.getTags());
+        if (StrUtil.isNotBlank(category)) {
+            PictureMetaUtils.validateMetaValueLength(category, "分类");
+        }
         // 1. 校验参数
         ThrowUtils.throwIf(spaceId == null || CollUtil.isEmpty(pictureIdList), ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
@@ -493,7 +539,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 picture.setCategory(category);
             }
             if (CollUtil.isNotEmpty(tags)) {
-                picture.setTags(JSONUtil.toJsonStr(tags));
+                picture.setTags(PictureMetaUtils.toTagsJson(tags));
             }
         });
         String nameRule = pictureEditByBatchRequest.getNameRule();
@@ -606,7 +652,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();
         BeanUtils.copyProperties(pictureEditRequest, picture);
         // 注意将 list 转为 string
-        picture.setTags(JSONUtil.toJsonStr(pictureEditRequest.getTags()));
+        String category = PictureMetaUtils.normalizeCategory(pictureEditRequest.getCategory());
+        if (StrUtil.isNotBlank(category)) {
+            PictureMetaUtils.validateMetaValueLength(category, "分类");
+        }
+        picture.setCategory(category);
+        picture.setTags(PictureMetaUtils.toTagsJson(pictureEditRequest.getTags()));
         // 设置编辑时间
         picture.setEditTime(new Date());
         // 数据校验
@@ -641,6 +692,45 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, taskRequest);
         // 创建任务
         return aliYunAiApi.createOutPaintingTask(taskRequest);
+    }
+
+    private List<String> listSpaceCategorySuggestions(Long spaceId) {
+        if (spaceId == null) {
+            return Collections.emptyList();
+        }
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("spaceId", spaceId).select("category");
+        Map<String, Long> countMap = toCountMap(this.getBaseMapper().selectObjs(queryWrapper).stream()
+                .map(obj -> obj == null ? null : obj.toString())
+                .map(PictureMetaUtils::normalizeCategory)
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toList()));
+        return countMap.entrySet().stream()
+                .sorted((left, right) -> Long.compare(right.getValue(), left.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> listSpaceTagSuggestions(Long spaceId) {
+        if (spaceId == null) {
+            return Collections.emptyList();
+        }
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("spaceId", spaceId).select("tags");
+        Map<String, Long> countMap = toCountMap(this.getBaseMapper().selectObjs(queryWrapper).stream()
+                .filter(ObjUtil::isNotNull)
+                .map(Object::toString)
+                .flatMap(tagsJson -> PictureMetaUtils.parseTags(tagsJson).stream())
+                .collect(Collectors.toList()));
+        return countMap.entrySet().stream()
+                .sorted((left, right) -> Long.compare(right.getValue(), left.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Long> toCountMap(List<String> valueList) {
+        return valueList.stream()
+                .collect(Collectors.groupingBy(value -> value, LinkedHashMap::new, Collectors.counting()));
     }
 
 

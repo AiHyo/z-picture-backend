@@ -4,6 +4,7 @@ import com.aih.zpicturebackend.api.aliYunai.model.CreateOutPaintingTaskResponse;
 import com.aih.zpicturebackend.model.dto.picture.*;
 import com.aih.zpicturebackend.model.entity.Picture;
 import com.aih.zpicturebackend.model.entity.User;
+import com.aih.zpicturebackend.model.vo.PictureTagCategory;
 import com.aih.zpicturebackend.model.vo.PictureVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -39,6 +40,7 @@ public interface PictureService extends IService<Picture> {
      */
     QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest);
 
+    PictureTagCategory listPictureTagCategory(Long spaceId);
 
     List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
 

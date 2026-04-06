@@ -121,13 +121,22 @@ public class UserController {
      * 更新用户
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
-        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        if (userUpdateRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean isAdmin = userService.isAdmin(loginUser);
+        Long targetUserId = userUpdateRequest.getId();
+        if (isAdmin) {
+            ThrowUtils.throwIf(targetUserId == null, ErrorCode.PARAMS_ERROR);
+        } else {
+            targetUserId = loginUser.getId();
+            userUpdateRequest.setUserRole(null);
         }
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
+        user.setId(targetUserId);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
