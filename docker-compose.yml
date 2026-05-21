@@ -10,7 +10,7 @@ services:
       - "13306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql/z_picture.sql:/docker-entrypoint-initdb.d/01_z_picture.sql:ro
+      - ./sql/create_table.schema-only.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
@@ -48,8 +48,11 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      VIP_CODE_FILE_PATH: /app/data/vip-codes.json
     ports:
       - "8123:8123"
+    volumes:
+      - ./data:/app/data
 
 volumes:
   mysql_data:
