@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public BaseResponse<?> businessExceptionHandler(BusinessException e) {
-        log.error("BusinessException", e);
+        log.warn("BusinessException: {}", e.getMessage());
         return ResultUtils.error(e.getCode(), e.getMessage());
     }
 

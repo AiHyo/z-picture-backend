@@ -1,7 +1,7 @@
 package com.aih.zpicturebackend.config;
 
-import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
+import com.aih.zpicturebackend.utils.HttpRequestUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class HttpRequestWrapperFilter implements Filter {
         if (request instanceof HttpServletRequest) {
             HttpServletRequest servletRequest = (HttpServletRequest) request;
             String contentType = servletRequest.getHeader(Header.CONTENT_TYPE.getValue());
-            if (ContentType.JSON.getValue().equals(contentType)) {
+            if (HttpRequestUtils.isJsonContentType(contentType)) {
                 // 可以再细粒度一些，只有需要进行空间权限校验的接口才需要包一层
                 chain.doFilter(new RequestWrapper(servletRequest), response);
             } else {

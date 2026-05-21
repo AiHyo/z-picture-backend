@@ -493,6 +493,12 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deletePictureTag(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        PictureTag dbPictureTag = pictureTagService.getById(deleteRequest.getId());
+        ThrowUtils.throwIf(dbPictureTag == null, ErrorCode.NOT_FOUND_ERROR);
+        boolean tagInUse = pictureService.lambdaQuery()
+                .like(Picture::getTags, "\"" + dbPictureTag.getTagName() + "\"")
+                .exists();
+        ThrowUtils.throwIf(tagInUse, ErrorCode.OPERATION_ERROR, "该标签已被图片使用，无法删除");
         boolean result = pictureTagService.removeById(deleteRequest.getId());
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
@@ -545,6 +551,12 @@ public class PictureController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deletePictureCategory(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        PictureCategory dbPictureCategory = pictureCategoryService.getById(deleteRequest.getId());
+        ThrowUtils.throwIf(dbPictureCategory == null, ErrorCode.NOT_FOUND_ERROR);
+        boolean categoryInUse = pictureService.lambdaQuery()
+                .eq(Picture::getCategory, dbPictureCategory.getCategoryName())
+                .exists();
+        ThrowUtils.throwIf(categoryInUse, ErrorCode.OPERATION_ERROR, "该分类已被图片使用，无法删除");
         boolean result = pictureCategoryService.removeById(deleteRequest.getId());
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

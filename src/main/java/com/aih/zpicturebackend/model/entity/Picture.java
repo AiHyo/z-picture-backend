@@ -135,8 +135,11 @@ public class Picture implements Serializable {
     private Date reviewTime;
 
     public String getOriginalUrl() {
-        if (this.thumbnailUrl == null) {
+        if (this.url != null && !this.url.trim().isEmpty()) {
             return this.url;
+        }
+        if (this.thumbnailUrl == null) {
+            return null;
         }
         int lastIndex = this.thumbnailUrl.lastIndexOf("_thumbnail");
         if (lastIndex != -1) {

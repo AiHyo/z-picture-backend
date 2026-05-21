@@ -36,6 +36,7 @@ import com.aih.zpicturebackend.service.UserService;
 import com.aih.zpicturebackend.utils.ColorSimilarUtils;
 import com.aih.zpicturebackend.utils.PictureMetaUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -513,23 +514,27 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser) {
         List<Long> pictureIdList = pictureEditByBatchRequest.getPictureIdList();
         Long spaceId = pictureEditByBatchRequest.getSpaceId();
+        String scope = pictureEditByBatchRequest.getScope();
+        boolean editWholeSpace = "SPACE".equals(scope);
         String category = PictureMetaUtils.normalizeCategory(pictureEditByBatchRequest.getCategory());
         List<String> tags = PictureMetaUtils.normalizeTags(pictureEditByBatchRequest.getTags());
         if (StrUtil.isNotBlank(category)) {
             PictureMetaUtils.validateMetaValueLength(category, "分类");
         }
         // 1. 校验参数
-        ThrowUtils.throwIf(spaceId == null || CollUtil.isEmpty(pictureIdList), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(spaceId == null || (!editWholeSpace && CollUtil.isEmpty(pictureIdList)), ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
         // 2. 校验空间权限
         Space space = spaceService.getById(spaceId);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
         // 3. 查询指定图片，仅选择需要的字段
-        List<Picture> pictureList = this.lambdaQuery()
+        LambdaQueryChainWrapper<Picture> queryWrapper = this.lambdaQuery()
                 .select(Picture::getId) // ①仅选择需要的，②不能再带spaceId，因为用了动态分表
-                .eq(Picture::getSpaceId, spaceId)
-                .in(Picture::getId, pictureIdList)
-                .list();
+                .eq(Picture::getSpaceId, spaceId);
+        if (!editWholeSpace) {
+            queryWrapper.in(Picture::getId, pictureIdList);
+        }
+        List<Picture> pictureList = queryWrapper.list();
         if (pictureList.isEmpty()) {
             return;
         }

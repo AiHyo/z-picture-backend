@@ -50,4 +50,3 @@ public class LoginUserVO implements Serializable {
      */
     private Date updateTime;
 }
-

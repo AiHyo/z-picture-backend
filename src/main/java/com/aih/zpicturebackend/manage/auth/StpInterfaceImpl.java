@@ -7,7 +7,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.ServletUtil;
-import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.exception.BusinessException;
@@ -23,6 +22,7 @@ import com.aih.zpicturebackend.service.PictureService;
 import com.aih.zpicturebackend.service.SpaceService;
 import com.aih.zpicturebackend.service.SpaceUserService;
 import com.aih.zpicturebackend.service.UserService;
+import com.aih.zpicturebackend.utils.HttpRequestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
@@ -189,7 +189,7 @@ public class StpInterfaceImpl implements StpInterface { // 实现 StpInterface �
             HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
             String header = request.getHeader(Header.CONTENT_TYPE.getValue());
             // 兼容 get 和 post 请求
-            if (ContentType.JSON.getValue().equals(header)) { // 处理 POST 请求（JSON 格式）
+            if (HttpRequestUtils.isJsonContentType(header)) { // 处理 POST 请求（JSON 格式）
                 // HttpServletRequest 的 body 值是个流，只支持读取一次，读完就没了！
                 // 所以需要在 config 包下自定义请求包装类和请求包装类过滤器。
                 String body = ServletUtil.getBody(request);

@@ -6,6 +6,8 @@ import cn.hutool.json.JSONUtil;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.exception.ThrowUtils;
+import com.aih.zpicturebackend.manage.auth.SpaceUserAuthManager;
+import com.aih.zpicturebackend.manage.auth.model.SpaceUserPermissionConstant;
 import com.aih.zpicturebackend.mapper.SpaceMapper;
 import com.aih.zpicturebackend.model.dto.space.analyze.*;
 import com.aih.zpicturebackend.model.entity.Picture;
@@ -42,6 +44,8 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
     private SpaceService spaceService;
     @Resource
     private PictureService pictureService;
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
 
     @Override // 空间[使用]分析数据
@@ -193,6 +197,9 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
         // 分析维度：每日、每周、每月
         String timeDimension = spaceUserAnalyzeRequest.getTimeDimension();
+        if (timeDimension == null || timeDimension.trim().isEmpty()) {
+            timeDimension = "day";
+        }
         switch (timeDimension) {
             case "day":
                 queryWrapper.select("DATE_FORMAT(createTime, '%Y-%m-%d') AS period", "COUNT(*) AS count");
@@ -273,8 +280,12 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 获取空间信息
         Space space = spaceService.getById(spaceId);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
-        // 权限校验：空间所有者 / 管理员
-        spaceService.checkSpaceAuth(loginUser, space);
+        if (space.getUserId().equals(loginUser.getId()) || userService.isAdmin(loginUser)) {
+            return space;
+        }
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        ThrowUtils.throwIf(!permissionList.contains(SpaceUserPermissionConstant.SPACE_USER_MANAGE),
+                ErrorCode.NO_AUTH_ERROR, "无权访问空间");
         return space;
     }
 

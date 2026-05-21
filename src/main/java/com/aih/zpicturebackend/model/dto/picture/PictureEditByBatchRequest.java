@@ -14,6 +14,11 @@ public class PictureEditByBatchRequest implements Serializable {
     private List<Long> pictureIdList;
 
     /**
+     * 批量编辑范围：CURRENT_PAGE 当前页，SPACE 整个空间
+     */
+    private String scope;
+
+    /**
      * 空间 id
      */
     private Long spaceId;
