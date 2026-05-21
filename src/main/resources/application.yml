@@ -89,4 +89,7 @@ knife4j:
         api-rule-resources:
           - com.aih.zpicturebackend.controller
 
+vip-code:
+  file-path: ${VIP_CODE_FILE_PATH:data/vip-codes.json}
+
 

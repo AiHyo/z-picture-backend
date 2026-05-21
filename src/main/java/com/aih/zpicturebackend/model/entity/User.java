@@ -74,6 +74,22 @@ public class User implements Serializable {
     @TableLogic
     private Integer isDelete;
 
+    /**
+     * 会员过期时间
+     */
+    private Date vipExpireTime;
+
+    /**
+     * 会员兑换码
+     */
+    @TableField(select = false)
+    private String vipCode;
+
+    /**
+     * 会员编号
+     */
+    private Long vipNumber;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -96,7 +112,9 @@ public class User implements Serializable {
             && (this.getEditTime() == null ? other.getEditTime() == null : this.getEditTime().equals(other.getEditTime()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()));
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+            && (this.getVipExpireTime() == null ? other.getVipExpireTime() == null : this.getVipExpireTime().equals(other.getVipExpireTime()))
+            && (this.getVipNumber() == null ? other.getVipNumber() == null : this.getVipNumber().equals(other.getVipNumber()));
     }
 
     @Override
@@ -114,6 +132,8 @@ public class User implements Serializable {
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
+        result = prime * result + ((getVipExpireTime() == null) ? 0 : getVipExpireTime().hashCode());
+        result = prime * result + ((getVipNumber() == null) ? 0 : getVipNumber().hashCode());
         return result;
     }
 
@@ -134,6 +154,8 @@ public class User implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);
+        sb.append(", vipExpireTime=").append(vipExpireTime);
+        sb.append(", vipNumber=").append(vipNumber);
         sb.append("]");
         return sb.toString();
     }

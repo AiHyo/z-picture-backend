@@ -1,0 +1,902 @@
+[
+  {
+    "code": "D1E2-F3G4-H5I6",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0001",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0002",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0003",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0004",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0005",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0006",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0007",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0008",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0009",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0010",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0011",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0012",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0013",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0014",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0015",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0016",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0017",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0018",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0019",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0020",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0021",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0022",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0023",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0024",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0025",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0026",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0027",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0028",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0029",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0030",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0031",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0032",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0033",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0034",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0035",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0036",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0037",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0038",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0039",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0040",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0041",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0042",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0043",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0044",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0045",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0046",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0047",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0048",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0049",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 1
+  },
+  {
+    "code": "VIP-2026-0050",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0051",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0052",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0053",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0054",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0055",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0056",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0057",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0058",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0059",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0060",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0061",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0062",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0063",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0064",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0065",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0066",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0067",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0068",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0069",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0070",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0071",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0072",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0073",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0074",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0075",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0076",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0077",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0078",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0079",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0080",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0081",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0082",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0083",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0084",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0085",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0086",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0087",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0088",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0089",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0090",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0091",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0092",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0093",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0094",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0095",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0096",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0097",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0098",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  },
+  {
+    "code": "VIP-2026-0099",
+    "used": false,
+    "usedUserId": null,
+    "usedTime": null,
+    "expireTime": "2026-12-31 23:59:59",
+    "durationDays": 365,
+    "vipLevel": 2
+  }
+]

@@ -63,6 +63,17 @@ public class UserController {
         return ResultUtils.success(result);
     }
 
+    /**
+     * 会员兑换
+     */
+    @PostMapping("/exchangeVip")
+    public BaseResponse<Boolean> exchangeVip(@RequestBody VipExchangeRequest vipExchangeRequest,
+                                             HttpServletRequest request) {
+        ThrowUtils.throwIf(vipExchangeRequest == null, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.exchangeVip(vipExchangeRequest.getVipCode(), request);
+        return ResultUtils.success(result);
+    }
+
 
     /**
      * 创建用户

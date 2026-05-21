@@ -60,6 +60,15 @@ public interface UserService extends IService<User> {
     boolean userLogout(HttpServletRequest request);
 
     /**
+     * 会员兑换
+     *
+     * @param vipCode 会员兑换码
+     * @param request 请求
+     * @return 是否兑换成功
+     */
+    boolean exchangeVip(String vipCode, HttpServletRequest request);
+
+    /**
      * 获取用户脱敏信息
      * @param user 脱敏前的信息
      * @return 脱敏后的信息
@@ -99,6 +108,14 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User user);
+
+    /**
+     * 获取用户可创建的最高空间级别
+     *
+     * @param user 用户
+     * @return 空间级别
+     */
+    int getMaxAllowedSpaceLevel(User user);
 
 }
 

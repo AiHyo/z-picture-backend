@@ -5,7 +5,10 @@ import com.aih.zpicturebackend.constant.UserConstant;
 import com.aih.zpicturebackend.exception.BusinessException;
 import com.aih.zpicturebackend.exception.ErrorCode;
 import com.aih.zpicturebackend.manage.auth.StpKit;
+import com.aih.zpicturebackend.manager.vip.VipCodeRedeemResult;
+import com.aih.zpicturebackend.manager.vip.VipCodeStore;
 import com.aih.zpicturebackend.model.dto.user.UserQueryRequest;
+import com.aih.zpicturebackend.model.enums.SpaceLevelEnum;
 import com.aih.zpicturebackend.model.enums.UserRoleEnum;
 import com.aih.zpicturebackend.model.vo.LoginUserVO;
 import com.aih.zpicturebackend.model.vo.UserVO;
@@ -21,7 +24,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,9 +41,39 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Resource
+    private VipCodeStore vipCodeStore;
+
     @Override
     public boolean isAdmin(User user) {
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+    }
+
+    @Override
+    public int getMaxAllowedSpaceLevel(User user) {
+        if (isAdmin(user)) {
+            return SpaceLevelEnum.FLAGSHIP.getValue();
+        }
+        if (user == null || user.getVipExpireTime() == null || !user.getVipExpireTime().after(new Date())) {
+            return SpaceLevelEnum.COMMON.getValue();
+        }
+        if (StrUtil.isBlank(user.getVipCode()) && user.getId() != null) {
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id", user.getId());
+            queryWrapper.select("id", "vipCode", "vipExpireTime");
+            User vipUser = this.baseMapper.selectOne(queryWrapper);
+            if (vipUser != null) {
+                user = vipUser;
+            }
+        }
+        int vipLevel = vipCodeStore.getVipLevel(user.getVipCode(), user.getId());
+        if (vipLevel >= SpaceLevelEnum.FLAGSHIP.getValue()) {
+            return SpaceLevelEnum.FLAGSHIP.getValue();
+        }
+        if (vipLevel >= SpaceLevelEnum.PROFESSIONAL.getValue()) {
+            return SpaceLevelEnum.PROFESSIONAL.getValue();
+        }
+        return SpaceLevelEnum.COMMON.getValue();
     }
 
     @Override
@@ -147,6 +183,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 移除登录态
         request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
         return true;
+    }
+
+    @Override
+    public boolean exchangeVip(String vipCode, HttpServletRequest request) {
+        User loginUser = getLoginUser(request);
+        vipCodeStore.redeem(vipCode, loginUser.getId(), new Date(), redeemResult -> {
+            boolean result = updateUserVipInfo(loginUser, redeemResult);
+            if (result) {
+                request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, this.getById(loginUser.getId()));
+            }
+            return result;
+        });
+        return true;
+    }
+
+    private boolean updateUserVipInfo(User loginUser, VipCodeRedeemResult redeemResult) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        Date currentExpireTime = loginUser.getVipExpireTime();
+        if (currentExpireTime != null && currentExpireTime.after(now)) {
+            calendar.setTime(currentExpireTime);
+        } else {
+            calendar.setTime(now);
+        }
+        calendar.add(Calendar.DATE, redeemResult.getDurationDays());
+
+        User updateUser = new User();
+        updateUser.setId(loginUser.getId());
+        updateUser.setVipCode(redeemResult.getCode());
+        updateUser.setVipNumber(loginUser.getVipNumber() == null ? loginUser.getId() : loginUser.getVipNumber());
+        updateUser.setVipExpireTime(calendar.getTime());
+        return this.updateById(updateUser);
     }
 
     @Override
