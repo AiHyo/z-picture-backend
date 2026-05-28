@@ -1,6 +1,7 @@
 ### Custom ###
 application-local.yml
 application-docker.yml
+.env
 z_picture.sql
 sql/z_picture_full_dump.sql
 data/*.lock

@@ -10,14 +10,33 @@
 
 ## Docker 快速启动
 
+首次运行前先复制示例配置，并按需填写 `.env` 中的 COS、阿里云 AI 等密钥：
+
 ```bash
 cd z-picture-backend
+cp .env.example .env
+cp src/main/resources/application-docker.example.yml src/main/resources/application-docker.yml
+docker compose up -d --build
+```
+
+Windows PowerShell 可使用：
+
+```powershell
+cd z-picture-backend
+Copy-Item .env.example .env
+Copy-Item src/main/resources/application-docker.example.yml src/main/resources/application-docker.yml
 docker compose up -d --build
 ```
 
 启动后访问：http://localhost:8123/api/doc.html
 
-> 首次启动会自动初始化数据库（执行 `sql/z_picture.sql`）
+> 首次启动会自动初始化数据库（执行 `sql/create_table.schema-only.sql`）
+
+如果修改了配置文件，请重新构建并启动：
+
+```bash
+docker compose up -d --build
+```
 
 ## 项目简介
 分为公共图库、私有图库和团队共享图库。
@@ -105,16 +124,38 @@ git clone https://github.com/AiHyo/z-picture-backend.git
 cd z-picture-backend
 ```
 
-2. 配置数据库
+2. 准备本地配置
+
+复制本地配置示例，并将其中的数据库、Redis、COS、阿里云 AI 配置改成自己的值：
+
+```bash
+cp src/main/resources/application-local.example.yml src/main/resources/application-local.yml
+```
+
+Windows PowerShell：
+
+```powershell
+Copy-Item src/main/resources/application-local.example.yml src/main/resources/application-local.yml
+```
+
+> `application-local.yml`、`application-docker.yml` 和 `.env` 已加入 `.gitignore`，请不要提交真实密钥。
+
+3. 配置数据库
 
 ```sql
 # 创建数据库
 CREATE DATABASE z_picture DEFAULT CHARACTER SET utf8mb4;
 ```
 
-3. 修改配置
+初始化表结构：
 
-需要修改`application.yml`中的配置，将占位符替换为您自己的配置：
+```bash
+mysql -uroot -p z_picture < sql/create_table.schema-only.sql
+```
+
+4. 修改配置
+
+需要修改 `application-local.yml` 中的配置，将占位符替换为您自己的配置。注意数据库连接在普通 datasource 和 ShardingSphere datasource 中各有一份，需要保持一致：
 
 ```yaml
 # 数据库配置
@@ -141,18 +182,39 @@ aliYunAi:
   apiKey: your_apiKey
 ```
 
-4. 编译运行
+5. 编译运行
 
 ```bash
 mvn clean package
 java -jar target/z-picture-backend-0.0.1-SNAPSHOT.jar
 ```
 
-5. 访问API文档
+也可以直接使用 Maven 启动：
+
+```bash
+mvn spring-boot:run
+```
+
+6. 访问API文档
 
 ```
 http://localhost:8123/api/doc.html
 ```
+
+### 配置文件说明
+
+后端提供以下示例配置：
+
+- `src/main/resources/application-local.example.yml`：本地开发配置示例，默认连接宿主机的 MySQL 和 Redis。
+- `src/main/resources/application-docker.example.yml`：Docker Compose 配置示例，默认连接 Compose 网络内的 `mysql` 和 `redis` 服务。
+- `.env.example`：Docker Compose 环境变量示例，用于配置镜像、端口、数据库密码、COS 和阿里云 AI Key。
+
+必须配置的第三方能力：
+
+- 腾讯云 COS：`cos.client.host`、`cos.client.secretId`、`cos.client.secretKey`、`cos.client.region`、`cos.client.bucket`
+- 阿里云百炼 DashScope：`aliYunAi.apiKey`
+
+如果暂时不使用图片上传或 AI 扩图功能，也建议保留示例占位值，后续使用相关功能前再替换为真实配置。
 
 ## 项目优化亮点
 
@@ -191,4 +253,3 @@ http://localhost:8123/api/doc.html
 - 增强图片识别和智能分类功能
 - 开发移动端应用，提供更便捷的访问方式
 - ……
-
